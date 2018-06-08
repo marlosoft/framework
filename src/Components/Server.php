@@ -58,8 +58,13 @@ class Server extends Component
     public function requestMethod()
     {
         $method = $this->realRequestMethod();
-        if ($method === 'POST' && $this->has('HTTP_X_HTTP_METHOD_OVERRIDE')) {
-            $method = strtoupper($this->get('HTTP_X_HTTP_METHOD_OVERRIDE'));
+        if ($method === 'POST') {
+            $request = Request::getInstance();
+            if ($request->has('_method')) {
+                $method = strtoupper($request->get('_method'));
+            } elseif ($this->has('HTTP_X_HTTP_METHOD_OVERRIDE')) {
+                $method = $method = strtoupper($this->get('HTTP_X_HTTP_METHOD_OVERRIDE'));
+            }
         }
 
         return $method;

@@ -48,18 +48,37 @@ class Validator
             }
 
             $data = $this->model->{$key};
-            foreach ($validation as $method => $message) {
-                if (method_exists($this->assert, $method)) {
-                    if ($this->assert->{$method}($data) === false) {
+            foreach ($validation as $k => $v) {
+                if (is_array($v)) {
+                    $message = $v['message'];
+                    $method = $assert = $v['assert'];
+
+                    if (is_array($assert)) {
+                        $method = array_shift($assert);
+                        array_unshift($assert, $data);
+                    } else {
+                        $assert = [$data];
+                    }
+                } else {
+                    $method = $k;
+                    $message = $v;
+                    $assert = [$data];
+                }
+
+                if (function_exists($method)) {
+                    if (call_user_func_array($method, $assert) === false) {
                         $this->errors[$key][] = $message;
+                        continue 2;
                     }
                 } elseif (method_exists($this->model, $method)) {
-                    if ($this->model->{$method}($data) === false) {
+                    if (call_user_func_array([$this->model, $method], $assert) === false) {
                         $this->errors[$key][] = $message;
+                        continue 2;
                     }
-                } elseif (function_exists($method)) {
-                    if ($method($data) === false) {
+                } elseif (method_exists($this->assert, $method)) {
+                    if (call_user_func_array([$this->assert, $method], $assert) === false) {
                         $this->errors[$key][] = $message;
+                        continue 2;
                     }
                 }
             }
