@@ -43,7 +43,12 @@ class RouteCollection
         }
 
         foreach ($routes as $path => $options) {
-            $this->add(new Route($path, $options['controller'], $options['methods']));
+            $route = new Route($path, $options['controller'], $options['methods']);
+            if (isset($options['middlewares'])) {
+                $route->setMiddlewares($options['middlewares']);
+            }
+
+            $this->add($route);
         }
     }
 

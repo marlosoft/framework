@@ -2,6 +2,7 @@
 
 namespace Marlosoft\Framework\Core;
 
+use Marlosoft\Framework\Exceptions\ViewNotFoundException;
 use Marlosoft\Framework\Misc\Singleton;
 use Marlosoft\Framework\Routing\Route;
 use Marlosoft\Framework\Routing\Router;
@@ -46,6 +47,35 @@ class Application extends Singleton
     }
 
     /**
+     * @param Route $route
+     * @param Controller $controller
+     * @param string $type
+     *
+     * @throws ViewNotFoundException
+     */
+    protected function applyMiddleware(Route $route, Controller $controller, $type = 'before')
+    {
+        $middlewares = $route->getMiddlewares($type);
+        if (empty($middlewares)) {
+            return;
+        }
+
+        foreach ($middlewares as $middleware) {
+            $view = null;
+            if (method_exists($controller, $middleware)) {
+                $view = $controller->{$middleware}();
+            } elseif (is_callable($middleware)) {
+                $view = call_user_func($middleware);
+            }
+
+            if ($view instanceof ViewInterface) {
+                $view->createResponse();
+                return;
+            }
+        }
+    }
+
+    /**
      * Dispatch application
      */
     public function dispatch()
@@ -54,11 +84,12 @@ class Application extends Singleton
             $route = $this->router->parse();
             list($controller, $method) = $this->extract($route);
 
-            /** @var ViewInterface $view */
+            $this->applyMiddleware($route, $controller, 'before');
             $view = call_user_func_array(
                 [$controller, $method],
                 $route->getArguments()
             );
+            $this->applyMiddleware($route, $controller, 'after');
             $view->createResponse();
         } catch (\Exception $exception) {
             $errorHandler = Config::get('app.errorHandler', $this->errorHandler);

@@ -20,24 +20,29 @@ class Route
     /** @var array $arguments */
     protected $arguments = [];
 
+    /** @var array $middlewares */
+    protected $middlewares = [];
+
     /**
      * Route constructor.
      * @param string $path
      * @param string $controller
      * @param array $methods
+     * @param array $middlewares
      */
-    public function __construct($path, $controller, $methods = ['GET'])
+    public function __construct($path, $controller, $methods = ['GET'], $middlewares = [])
     {
         $this->path = (string)$path;
         $this->controller = (string)$controller;
         $this->methods = (array)$methods;
+        $this->middlewares = (array)$middlewares;
     }
 
     /**
      * @param array $methods
      * @return $this
      */
-    public function setMethods($methods)
+    public function setMethods(array $methods)
     {
         $this->methods = $methods;
         return $this;
@@ -67,9 +72,19 @@ class Route
      * @param array $arguments
      * @return $this
      */
-    public function setArguments($arguments)
+    public function setArguments(array $arguments)
     {
         $this->arguments = $arguments;
+        return $this;
+    }
+
+    /**
+     * @param array $middlewares
+     * @return $this
+     */
+    public function setMiddlewares(array $middlewares)
+    {
+        $this->middlewares = $middlewares;
         return $this;
     }
 
@@ -103,6 +118,20 @@ class Route
     public function getArguments()
     {
         return $this->arguments;
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return array
+     */
+    public function getMiddlewares($type = 'before')
+    {
+        if (isset($this->middlewares[$type])) {
+            return $this->middlewares[$type];
+        }
+
+        return [];
     }
 
     /**
