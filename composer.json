@@ -1,0 +1,11 @@
+{
+  "name": "marlosoft/framework",
+  "description": "Simple PHP-MVC Framework",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Marlosoft\\Framework\\": "src/"
+    }
+  }
+}
