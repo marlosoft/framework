@@ -6,6 +6,7 @@ use Marlosoft\Framework\Components\Logger;
 use Marlosoft\Framework\Components\Request;
 use Marlosoft\Framework\Components\Server;
 use Marlosoft\Framework\Components\Session;
+use Marlosoft\Framework\Misc\ObjectManager;
 use Marlosoft\Framework\Views\JsonView;
 use Marlosoft\Framework\Views\RedirectView;
 use Marlosoft\Framework\Views\TemplateView;
@@ -34,10 +35,10 @@ class Controller
      */
     public function __construct()
     {
-        $this->logger = Logger::getInstance();
-        $this->server = Server::getInstance();
-        $this->session = Session::getInstance();
-        $this->request = Request::getInstance();
+        $this->logger = ObjectManager::factory('core.class.logger', Logger::class);
+        $this->server = ObjectManager::factory('core.class.server', Server::class);
+        $this->session = ObjectManager::factory('core.class.session', Session::class);
+        $this->request = ObjectManager::factory('core.class.request', Request::class);
     }
 
     /**

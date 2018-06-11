@@ -29,6 +29,9 @@ class Logger extends Component
     /** @var string $file */
     protected $file;
 
+    /** @var bool $enabled */
+    protected $enabled = true;
+
     /**
      * Logger constructor.
      */
@@ -36,6 +39,7 @@ class Logger extends Component
     {
         $this->level = (int)Config::get('log.level', 0);
         $this->file = (string)Config::get('log.file');
+        $this->enabled = (bool)Config::get('log.enabled', true);
     }
 
     /**
@@ -45,6 +49,10 @@ class Logger extends Component
      */
     public function log($level, $message, $data = [])
     {
+        if ($this->enabled === false) {
+            return;
+        }
+
         $lvl = (int)$this->levels[$level];
         $timestamp = date('Y-m-d H:i:s');
 

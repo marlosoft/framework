@@ -33,8 +33,8 @@ class Validator
         $this->model = $model;
         $this->constraints = $constraints;
 
-        $assertClass = Config::get('core.class.assert', Assert::class);
-        $this->assert = new $assertClass();
+        $assert = Config::get('core.class.assert', Assert::class);
+        $this->assert = new $assert();
     }
 
     /**

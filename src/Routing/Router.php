@@ -6,6 +6,7 @@ use Marlosoft\Framework\Components\Logger;
 use Marlosoft\Framework\Components\Server;
 use Marlosoft\Framework\Exceptions\MethodNotAllowedException;
 use Marlosoft\Framework\Exceptions\RouteNotFoundException;
+use Marlosoft\Framework\Misc\ObjectManager;
 
 /**
  * Class Router
@@ -28,8 +29,8 @@ class Router
     public function __construct()
     {
         $this->collection = new RouteCollection();
-        $this->server = Server::getInstance();
-        $this->logger = Logger::getInstance();
+        $this->server = ObjectManager::factory('core.class.server', Server::class);
+        $this->logger = ObjectManager::factory('core.class.logger', Logger::class);
     }
 
     /**

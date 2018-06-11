@@ -2,12 +2,17 @@
 
 namespace Marlosoft\Framework\Views;
 
+use Marlosoft\Framework\Components\Request;
+use Marlosoft\Framework\Components\Server;
 use Marlosoft\Framework\Core\Config;
 use Marlosoft\Framework\Exceptions\ViewNotFoundException;
+use Marlosoft\Framework\Misc\ObjectManager;
 
 /**
  * Class AbstractView
  * @package Marlosoft\Framework\View
+ * @property Request $request
+ * @property Server $server
  */
 class View implements ViewInterface
 {
@@ -22,6 +27,12 @@ class View implements ViewInterface
 
     /** @var array $headers */
     protected $headers = [];
+
+    /** @var Request $request */
+    protected $request;
+
+    /** @var Server $server */
+    protected $server;
 
     /**
      * @return void
@@ -71,6 +82,9 @@ class View implements ViewInterface
      */
     public function __construct($path = null)
     {
+        $this->server = ObjectManager::factory('core.class.server', Server::class);
+        $this->request = ObjectManager::factory('core.class.request', Request::class);
+
         if (empty($path) === false) {
             $this->setPath($path);
         }

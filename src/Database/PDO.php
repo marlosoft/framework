@@ -5,6 +5,8 @@ namespace Marlosoft\Framework\Database;
 use Marlosoft\Framework\Components\Logger;
 use Marlosoft\Framework\Core\Config;
 use Marlosoft\Framework\Exceptions\PDOException;
+use Marlosoft\Framework\Misc\Inflector;
+use Marlosoft\Framework\Misc\ObjectManager;
 
 /**
  * Class Connection
@@ -29,7 +31,7 @@ class PDO extends \PDO
 
         if (empty($where) === false) {
             $placeholders = implode(' AND ', array_map(function ($v) {
-                return sprintf('`%s` = ?', $v);
+                return sprintf('`%s` = ?', Inflector::underscore($v));
             }, array_keys($where)));
 
             $query = sprintf('%s WHERE %s', $query, $placeholders);
@@ -57,7 +59,11 @@ class PDO extends \PDO
      */
     public function __construct()
     {
-        $this->logger = Logger::getInstance();
+        $this->logger = ObjectManager::factory(
+            'core.class.logger',
+            Logger::class
+        );
+
         try {
             parent::__construct(
                 (string)Config::get('database.dsn'),
@@ -70,7 +76,11 @@ class PDO extends \PDO
             $this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION);
             $this->setAttribute(self::ATTR_STATEMENT_CLASS, [PDOStatement::class]);
         } catch (\PDOException $exception) {
-            throw new PDOException($exception->getMessage());
+            throw new PDOException(
+                $exception->getMessage(),
+                $exception->getCode(),
+                $exception->getPrevious()
+            );
         }
     }
 
@@ -95,9 +105,12 @@ class PDO extends \PDO
     public function execute($sql, $data = [])
     {
         try {
+            /** @var PDOStatement $statement */
             $statement = $this->prepare($sql);
             $statement->execute($data);
+            $this->onQueryEnd($statement, $sql, $data);
         } catch (\PDOException $exception) {
+            $this->logger->error('SQL Query Error', [$sql, $data]);
             throw new PDOException($exception->getMessage());
         }
 

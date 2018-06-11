@@ -2,6 +2,7 @@
 
 namespace Marlosoft\Framework\Core;
 
+use Marlosoft\Framework\Exceptions\FrameworkException;
 use Marlosoft\Framework\Exceptions\ViewNotFoundException;
 use Marlosoft\Framework\Misc\Singleton;
 use Marlosoft\Framework\Routing\Route;
@@ -36,14 +37,23 @@ class Application extends Singleton
 
     /**
      * @param Route $route
+     *
      * @return array
+     * @throws FrameworkException
      */
     protected function extract(Route $route)
     {
-        list($controllerName, $methodName) = $route->extract();
+        list($controllerName, $method) = $route->extract();
         $controller = new $controllerName();
 
-        return [$controller, $methodName];
+        if (method_exists($controller, $method) === false) {
+            throw new FrameworkException(sprintf(
+                'Controller "%s::%s()" not found',
+                $controllerName, $method
+            ));
+        }
+
+        return [$controller, $method];
     }
 
     /**
@@ -70,7 +80,7 @@ class Application extends Singleton
 
             if ($view instanceof ViewInterface) {
                 $view->createResponse();
-                return;
+                exit(0);
             }
         }
     }
@@ -89,6 +99,11 @@ class Application extends Singleton
                 [$controller, $method],
                 $route->getArguments()
             );
+
+            if (($view instanceof ViewInterface) === false) {
+                throw new ViewNotFoundException('Must return an instance of ViewInterface');
+            }
+
             $this->applyMiddleware($route, $controller, 'after');
             $view->createResponse();
         } catch (\Exception $exception) {

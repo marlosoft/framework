@@ -2,6 +2,8 @@
 
 namespace Marlosoft\Framework\Components;
 
+use Marlosoft\Framework\Misc\ObjectManager;
+
 /**
  * Class Server
  * @package Marlosoft\Framework\Component
@@ -59,7 +61,11 @@ class Server extends Component
     {
         $method = $this->realRequestMethod();
         if ($method === 'POST') {
-            $request = Request::getInstance();
+            /** @var Request $request */
+            $request = ObjectManager::factory(
+                'core.class.request',
+                Request::class
+            );
             if ($request->has('_method')) {
                 $method = strtoupper($request->get('_method'));
             } elseif ($this->has('HTTP_X_HTTP_METHOD_OVERRIDE')) {

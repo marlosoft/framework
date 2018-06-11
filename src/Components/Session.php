@@ -2,6 +2,8 @@
 
 namespace Marlosoft\Framework\Components;
 
+use Marlosoft\Framework\Core\Config;
+
 /**
  * Class Session
  * @package Marlosoft\Framework\Component
@@ -53,6 +55,19 @@ class Session extends Component
     public function remove($key)
     {
         unset($_SESSION[$key]);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function flash($key)
+    {
+        $data = $this->get($key);
+        $this->remove($key);
+
+        return $data;
     }
 
     /**

@@ -2,8 +2,6 @@
 
 namespace Marlosoft\Framework\Exceptions;
 
-use Throwable;
-
 /**
  * Class RouteNotFoundException
  * @package Marlosoft\Framework\Exceptions

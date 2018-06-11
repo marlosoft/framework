@@ -99,4 +99,36 @@ class Assert
     {
         return strlen($data) >= $length;
     }
+
+    /**
+     * @param mixed $data
+     * @param array $array
+     *
+     * @return bool
+     */
+    public function inArray($data, array $array)
+    {
+        return in_array($data, $array);
+    }
+
+    /**
+     * @param string $data
+     * @param string|array $substring
+     *
+     * @return bool
+     */
+    public function startsWith($data, $substring)
+    {
+        if (is_array($substring)) {
+            foreach ($substring as $v) {
+                if (strpos($data, $substring) === 0) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        return strpos($data, $substring) === 0;
+    }
 }

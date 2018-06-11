@@ -2,6 +2,8 @@
 
 namespace Marlosoft\Framework\Components;
 
+use Marlosoft\Framework\Misc\ObjectManager;
+
 /**
  * Class Request
  * @package Marlosoft\Framework\Component
@@ -50,7 +52,13 @@ class Request extends Component
      */
     public function isMethod($method)
     {
-        $requestMethod = Server::getInstance()->get('REQUEST_METHOD');
+        /** @var Server $server */
+        $server = ObjectManager::factory(
+            'core.class.server',
+            Server::class
+        );
+
+        $requestMethod = $server->requestMethod();
         return (strtoupper($method) === strtoupper($requestMethod));
     }
 }
