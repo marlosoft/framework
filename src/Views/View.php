@@ -65,6 +65,8 @@ class View implements ViewInterface
 
         /** @noinspection PhpIncludeInspection */
         require_once($this->path);
+        $this->setVariables(get_defined_vars());
+
         return ob_get_clean();
     }
 

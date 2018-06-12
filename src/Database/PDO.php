@@ -20,24 +20,44 @@ class PDO extends \PDO
     /**
      * @param string $table
      * @param array $where
+     * @param array $options
      * @return array
      */
-    protected function createFindQuery($table, $where = [])
+    protected function createFindQuery($table, $where = [], $options = [])
     {
         $query = sprintf(
             'SELECT *' . ' FROM `%s`',
             $table
         );
 
+        $data = [];
         if (empty($where) === false) {
-            $placeholders = implode(' AND ', array_map(function ($v) {
-                return sprintf('`%s` = ?', Inflector::underscore($v));
-            }, array_keys($where)));
+            $placeholders = [];
+            foreach ($where as $k => $v) {
+                list($key, $ope) = sscanf($k, '%s %s');
+                $ope = empty($ope) ? '=' : (string)$ope;
+                $placeholders[] = sprintf('`%s` %s ?', Inflector::underscore($key), $ope);
+                $data[] = $v;
+            }
 
-            $query = sprintf('%s WHERE %s', $query, $placeholders);
+            $query = sprintf('%s WHERE %s', $query, implode(' AND ', $placeholders));
         }
 
-        return [$query, array_values($where)];
+        if (isset($options['groupBy'])) {
+            $groups = array_map(function ($v) {
+                return sprintf('`%s`', Inflector::underscore($v));
+            }, $options['groupBy']);
+            $query = sprintf('%s GROUP BY %s', $query, implode(', ', $groups));
+        }
+
+        if (isset($options['orderBy'])) {
+            $orders = array_map(function ($k, $v) {
+                return sprintf('`%s` %s', Inflector::underscore($k), strtoupper($v));
+            }, array_keys($options['orderBy']), $options['orderBy']);
+            $query = sprintf('%s ORDER BY %s', $query, implode(', ', $orders));
+        }
+
+        return [$query, $data];
     }
 
     /**
@@ -163,11 +183,12 @@ class PDO extends \PDO
     /**
      * @param string $table
      * @param array $where
+     * @param array $options
      * @return array
      */
-    public function findBy($table, $where = [])
+    public function findBy($table, $where = [], $options = [])
     {
-        list($query, $data) = $this->createFindQuery($table, $where);
+        list($query, $data) = $this->createFindQuery($table, $where, $options);
         $statement = $this->execute($query, $data);
 
         return $statement->fetch(self::FETCH_ASSOC);
@@ -176,11 +197,12 @@ class PDO extends \PDO
     /**
      * @param string $table
      * @param array $where
+     * @param array $options
      * @return array
      */
-    public function findAllBy($table, $where = [])
+    public function findAllBy($table, $where = [], $options = [])
     {
-        list($query, $data) = $this->createFindQuery($table, $where);
+        list($query, $data) = $this->createFindQuery($table, $where, $options);
         $statement = $this->execute($query, $data);
 
         return $statement->fetchAll(self::FETCH_ASSOC);

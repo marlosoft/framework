@@ -64,21 +64,23 @@ class Model
 
     /**
      * @param array $where
+     * @param array $options
      * @return static|Model
      */
-    public static function findBy($where = [])
+    public static function findBy($where = [], $options = [])
     {
-        $data = PDO::getConnection()->findBy(static::TABLE, $where);
+        $data = PDO::getConnection()->findBy(static::TABLE, $where, $options);
         return empty($data) ? null : new static($data);
     }
 
     /**
      * @param array $where
+     * @param array $options
      * @return static[]|Model[]
      */
-    public static function findAll($where = [])
+    public static function findAll($where = [], $options = [])
     {
-        $data = PDO::getConnection()->findAllBy(static::TABLE, $where);
+        $data = PDO::getConnection()->findAllBy(static::TABLE, $where, $options);
         return empty($data) ? [] : static::populate($data);
     }
 

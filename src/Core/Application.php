@@ -101,7 +101,7 @@ class Application extends Singleton
             );
 
             if (($view instanceof ViewInterface) === false) {
-                throw new ViewNotFoundException('Must return an instance of ViewInterface');
+                throw new FrameworkException('Controller must return class that implements ViewInterface');
             }
 
             $this->applyMiddleware($route, $controller, 'after');
