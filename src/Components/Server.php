@@ -10,6 +10,21 @@ use Marlosoft\Framework\Misc\ObjectManager;
  */
 class Server extends Component
 {
+    /** @var Request $request */
+    protected $request;
+
+    /**
+     * Server Constructor.
+     */
+    protected function __construct()
+    {
+        parent::__construct();
+        $this->request = ObjectManager::factory(
+            'core.class.request',
+            Request::class
+        );
+    }
+
     /**
      * @param string $key
      * @return bool

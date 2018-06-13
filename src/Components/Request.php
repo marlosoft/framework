@@ -10,6 +10,21 @@ use Marlosoft\Framework\Misc\ObjectManager;
  */
 class Request extends Component
 {
+    /** @var Server $server */
+    protected $server;
+
+    /**
+     * Request Constructor.
+     */
+    protected function __construct()
+    {
+        parent::__construct();
+        $this->server = ObjectManager::factory(
+            'core.class.server',
+            Server::class
+        );
+    }
+
     /**
      * @param string $key
      * @return bool
@@ -52,13 +67,7 @@ class Request extends Component
      */
     public function isMethod($method)
     {
-        /** @var Server $server */
-        $server = ObjectManager::factory(
-            'core.class.server',
-            Server::class
-        );
-
-        $requestMethod = $server->requestMethod();
+        $requestMethod = $this->server->requestMethod();
         return (strtoupper($method) === strtoupper($requestMethod));
     }
 }
